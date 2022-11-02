@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.function.ToDoubleBiFunction;
 
 @RestController
-@PreAuthorize("isAuthenticated()")
+//@PreAuthorize("isAuthenticated()")
 @RequestMapping("/myTransfers")
 
 public class TransferController {
@@ -60,8 +60,8 @@ public class TransferController {
         try {
             transferDAO.createTransfer(transfer);
             success = true;
-            transferDAO.UpdateFromBalances(transfer);
-            transferDAO.UpdateToBalances(transfer);
+/*            transferDAO.UpdateFromBalances(transfer);
+            transferDAO.UpdateToBalances(transfer);*/
         } catch (RestClientResponseException rcr) {
             System.out.println(rcr.getRawStatusCode()+" : "+rcr.getStatusText());
         }

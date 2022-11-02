@@ -2,6 +2,7 @@ package com.techelevator.tenmo.model;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import java.math.BigDecimal;
 import java.util.Objects;
 
 public class Account {
@@ -10,17 +11,17 @@ public class Account {
     @NotBlank
     private int userId;
     @Min(value = 0)
-    private long balance;
+    private BigDecimal balance;
 
     public Account(){}
 
-    public Account(int accountId, int userId, long balance) {
+    public Account(int accountId, int userId, BigDecimal balance) {
         this.accountId = accountId;
         this.userId = userId;
         this.balance = balance;
     }
 
-    public Account(int userId, long balance) {
+    public Account(int userId, BigDecimal balance) {
         this.userId = userId;
         this.balance = balance;
     }
@@ -41,11 +42,11 @@ public class Account {
         this.userId = userId;
     }
 
-    public long getBalance() {
+    public BigDecimal getBalance() {
         return balance;
     }
 
-    public void setBalance(long balance) {
+    public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
 

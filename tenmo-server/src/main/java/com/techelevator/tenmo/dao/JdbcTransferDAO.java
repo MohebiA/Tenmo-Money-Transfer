@@ -7,6 +7,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +27,10 @@ public class JdbcTransferDAO implements TransferDAO{
         String sql = "INSERT INTO transfer (transfer_type_id, " +
                 "transfer_status_id, account_from, account_to, amount) VALUES (?,?,?,?,?);";
         try {
-            jdbcTemplate.queryForObject(sql, Transfer.class, transfer.getTransferTypeId(), transfer.getTransferStatusId(),
-                    transfer.getAccountFrom(), transfer.getAccountTo());
+/*            jdbcTemplate.queryForObject(sql, Transfer.class, transfer.getTransferTypeId(), transfer.getTransferStatusId(),
+                    transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getTransferAmount());*/
+            jdbcTemplate.update(sql, transfer.getTransferTypeId(), transfer.getTransferStatusId(),
+                    transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getTransferAmount());
             success = true;
         }catch (ResourceAccessException e){
             System.out.println(e.getMessage());;
@@ -121,9 +124,9 @@ public class JdbcTransferDAO implements TransferDAO{
         Account account = new Account();
         boolean success = false;
         int accountId= transfer.getAccountFrom();
-        long transferAmount = transfer.getTransferAmount();
-        long balance = 0;
-        long newBalance = 0;
+        BigDecimal transferAmount = transfer.getTransferAmount();
+        BigDecimal balance = new BigDecimal(0);
+        BigDecimal newBalance = new BigDecimal(0);
 
         String balanceSql = "SELECT balance FROM account WHERE account_id = ?;";
         String balanceUpdate = "UPDATE account SET balance = ? WHERE account_id = ? ;";
@@ -132,9 +135,9 @@ public class JdbcTransferDAO implements TransferDAO{
             account = mapResultToAccount(result);
         }
         balance = account.getBalance();
-        newBalance = balance - transferAmount;
-        if(transferAmount-balance >= 0){
-            jdbcTemplate.update(balanceSql, newBalance, accountId);
+        newBalance = balance.subtract(transferAmount);
+        if(newBalance.compareTo(BigDecimal.ZERO) >= 0){
+            jdbcTemplate.update(balanceUpdate, newBalance, accountId);
             success = true;
         }
 
@@ -147,9 +150,9 @@ public class JdbcTransferDAO implements TransferDAO{
         Account account = new Account();
         boolean success = false;
         int accountId= transfer.getAccountTo();
-        long transferAmount = transfer.getTransferAmount();
-        long balance = 0;
-        long newBalance = 0;
+        BigDecimal transferAmount = transfer.getTransferAmount();
+        BigDecimal balance = new BigDecimal(0);
+        BigDecimal newBalance = new BigDecimal(0);
 
         String balanceSql = "SELECT balance FROM account WHERE account_id = ?;";
         String balanceUpdate = "UPDATE account SET balance = ? WHERE account_id = ? ;";
@@ -158,8 +161,8 @@ public class JdbcTransferDAO implements TransferDAO{
             account = mapResultToAccount(result);
         }
         balance = account.getBalance();
-        newBalance = balance + transferAmount;
-        jdbcTemplate.update(balanceSql, newBalance, accountId);
+        newBalance = balance.add(transferAmount);
+        jdbcTemplate.update(balanceUpdate, newBalance, accountId);
         success = true;
 
         return success;
@@ -172,7 +175,7 @@ public class JdbcTransferDAO implements TransferDAO{
         transfer.setTransferStatusId(result.getInt("transfer_status_id"));
         transfer.setAccountFrom(result.getInt("account_from"));
         transfer.setAccountTo(result.getInt("account_to"));
-        transfer.setTransferAmount(result.getLong("amount"));
+        transfer.setTransferAmount(result.getBigDecimal("amount"));
         return transfer;
     }
 
@@ -180,7 +183,7 @@ public class JdbcTransferDAO implements TransferDAO{
         Account account = new Account();
         account.setAccountId(result.getInt("account_id"));
         account.setUserId(result.getInt("user_id"));
-        account.setBalance(result.getLong("balance"));
+        account.setBalance(result.getBigDecimal("balance"));
         return account;
     }
 

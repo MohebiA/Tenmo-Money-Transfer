@@ -2,14 +2,17 @@ package com.techelevator.tenmo.controller;
 
 import com.techelevator.tenmo.dao.AccountDAO;
 import com.techelevator.tenmo.dao.UserDao;
+import com.techelevator.tenmo.model.Account;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClientResponseException;
 
+import java.awt.print.PrinterGraphics;
+import java.math.BigDecimal;
 import java.security.Principal;
 
 @RestController
-@PreAuthorize("isAuthenticated()")
+//@PreAuthorize("isAuthenticated()")
 @RequestMapping("/myAccount")
 
 public class AccountController {
@@ -21,16 +24,24 @@ public class AccountController {
     }
 
     //TODO fix username find
-    @RequestMapping (path = "", method = RequestMethod.GET)
-    public long getAccountBalance(@RequestParam String username){
-        long balance = 0;
+/*    @RequestMapping (path = "/{username}", method = RequestMethod.GET)
+    public Account getAccountBalance(@PathVariable String username){
+        Account account = null;
+        BigDecimal balance = new BigDecimal(0);
         try {
-            balance = accountDAO.getBalance(username);
+            account = accountDAO.getBalance(username);
         }catch (RestClientResponseException rcr){
             System.out.println(rcr.getRawStatusCode()+" : "+rcr.getStatusText());
         }
-        return balance;
-    }
+        return account;
+    }*/
 
+   @RequestMapping (path = "/{id}", method = RequestMethod.GET)
+    public BigDecimal getAccount(@PathVariable int id){
+        Account account = null;
+        account = accountDAO.getAccount(id);
+
+        return account.getBalance();
+    }
 
 }

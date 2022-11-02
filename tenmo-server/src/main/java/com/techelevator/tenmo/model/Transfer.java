@@ -2,20 +2,23 @@ package com.techelevator.tenmo.model;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import java.math.BigDecimal;
 import java.util.Objects;
 
 public class Transfer {
     private int transferId;
-    @NotBlank
+    @NotNull
     private int transferTypeId;
-    @NotBlank
+    @NotNull
     private int transferStatusId;
-    @NotBlank
+    @NotNull
     private int accountFrom;
-    @NotBlank
+    @NotNull
     private int accountTo;
     @Min (value = 0)
-    private long transferAmount;
+    private BigDecimal transferAmount;
 
     public int getTransferId() {
         return transferId;
@@ -57,17 +60,17 @@ public class Transfer {
         this.accountTo = accountTo;
     }
 
-    public long getTransferAmount() {
+    public BigDecimal getTransferAmount() {
         return transferAmount;
     }
 
-    public void setTransferAmount(long numeric) {
+    public void setTransferAmount(BigDecimal transferAmount) {
         this.transferAmount = transferAmount;
     }
 
     public Transfer (){}
 
-    public Transfer(int transferId, int transferTypeId, int transferStatusId, int accountFrom, int accountTo, long transferAmount) {
+    public Transfer(int transferId, int transferTypeId, int transferStatusId, int accountFrom, int accountTo, BigDecimal transferAmount) {
         this.transferId = transferId;
         this.transferTypeId = transferTypeId;
         this.transferStatusId = transferStatusId;
@@ -76,7 +79,7 @@ public class Transfer {
         this.transferAmount = transferAmount;
     }
 
-    public Transfer(int transferTypeId, int transferStatusId, int accountFrom, int accountTo, long transferAmount) {
+    public Transfer(int transferTypeId, int transferStatusId, int accountFrom, int accountTo, BigDecimal transferAmount) {
         this.transferTypeId = transferTypeId;
         this.transferStatusId = transferStatusId;
         this.accountFrom = accountFrom;
