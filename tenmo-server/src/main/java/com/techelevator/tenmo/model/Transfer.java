@@ -15,7 +15,7 @@ public class Transfer {
     @NotBlank
     private int accountTo;
     @Min (value = 0)
-    private long balance;
+    private long transferAmount;
 
     public int getTransferId() {
         return transferId;
@@ -57,31 +57,31 @@ public class Transfer {
         this.accountTo = accountTo;
     }
 
-    public long getBalance() {
-        return balance;
+    public long getTransferAmount() {
+        return transferAmount;
     }
 
-    public void setBalance(long numeric) {
-        this.balance = balance;
+    public void setTransferAmount(long numeric) {
+        this.transferAmount = transferAmount;
     }
 
     public Transfer (){}
 
-    public Transfer(int transferId, int transferTypeId, int transferStatusId, int accountFrom, int accountTo, long balance) {
+    public Transfer(int transferId, int transferTypeId, int transferStatusId, int accountFrom, int accountTo, long transferAmount) {
         this.transferId = transferId;
         this.transferTypeId = transferTypeId;
         this.transferStatusId = transferStatusId;
         this.accountFrom = accountFrom;
         this.accountTo = accountTo;
-        this.balance = balance;
+        this.transferAmount = transferAmount;
     }
 
-    public Transfer(int transferTypeId, int transferStatusId, int accountFrom, int accountTo, long balance) {
+    public Transfer(int transferTypeId, int transferStatusId, int accountFrom, int accountTo, long transferAmount) {
         this.transferTypeId = transferTypeId;
         this.transferStatusId = transferStatusId;
         this.accountFrom = accountFrom;
         this.accountTo = accountTo;
-        this.balance = balance;
+        this.transferAmount = transferAmount;
     }
 
     @Override
@@ -92,7 +92,7 @@ public class Transfer {
                 ", transferStatusId=" + transferStatusId +
                 ", accountFrom=" + accountFrom +
                 ", accountTo=" + accountTo +
-                ", balance=" + balance +
+                ", transferAmount=" + transferAmount +
                 '}';
     }
 
@@ -101,11 +101,11 @@ public class Transfer {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Transfer transfer = (Transfer) o;
-        return transferId == transfer.transferId && transferTypeId == transfer.transferTypeId && transferStatusId == transfer.transferStatusId && accountFrom == transfer.accountFrom && accountTo == transfer.accountTo && balance == transfer.balance;
+        return transferId == transfer.transferId && transferTypeId == transfer.transferTypeId && transferStatusId == transfer.transferStatusId && accountFrom == transfer.accountFrom && accountTo == transfer.accountTo && transferAmount == transfer.transferAmount;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(transferId, transferTypeId, transferStatusId, accountFrom, accountTo, balance);
+        return Objects.hash(transferId, transferTypeId, transferStatusId, accountFrom, accountTo, transferAmount);
     }
 }

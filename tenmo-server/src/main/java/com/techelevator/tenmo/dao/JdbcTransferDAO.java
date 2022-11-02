@@ -1,14 +1,17 @@
 package com.techelevator.tenmo.dao;
 
+import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class JdbcTransferDAO implements TransferDAO{
 
     private JdbcTemplate jdbcTemplate;
@@ -18,18 +21,21 @@ public class JdbcTransferDAO implements TransferDAO{
     }
 
     @Override
-    public void createTransfer(Transfer transfer){
+    public boolean createTransfer(Transfer transfer){
+        boolean success = false;
         String sql = "INSERT INTO transfer (transfer_type_id, " +
                 "transfer_status_id, account_from, account_to, amount) VALUES (?,?,?,?,?);";
         try {
             jdbcTemplate.queryForObject(sql, Transfer.class, transfer.getTransferTypeId(), transfer.getTransferStatusId(),
                     transfer.getAccountFrom(), transfer.getAccountTo());
+            success = true;
         }catch (ResourceAccessException e){
             System.out.println(e.getMessage());;
         }
+        return success;
     }
 
-    @Override
+/*    @Override
     public List<Transfer> getTransfersByUserId(Principal principal) {
         List<Transfer> transferList = new ArrayList<>();
         String sql = "SELECT * FROM transfer JOIN account ON account.account_id = transfer.account_to JOIN tenmo_user " +
@@ -37,6 +43,26 @@ public class JdbcTransferDAO implements TransferDAO{
 
         try {
             SqlRowSet result = jdbcTemplate.queryForRowSet(sql, principal.getName());
+
+            while (result.next()) {
+                transferList.add(mapResultToTransfer(result));
+            }
+        }catch (ResourceAccessException e){
+            System.out.println(e.getMessage());
+        }
+        return transferList;
+    }*/
+
+
+
+    @Override
+    public List<Transfer> getTransfersByUserId(String username) {
+        List<Transfer> transferList = new ArrayList<>();
+        String sql = "SELECT * FROM transfer JOIN account ON account.account_id = transfer.account_to JOIN tenmo_user " +
+                "ON account.user_id = tenmo_user.user_id WHERE username = ?;";
+
+        try {
+            SqlRowSet result = jdbcTemplate.queryForRowSet(sql, username);
 
             while (result.next()) {
                 transferList.add(mapResultToTransfer(result));
@@ -80,6 +106,65 @@ public class JdbcTransferDAO implements TransferDAO{
         return transfer;
     }
 
+    public boolean getTransferStatus(Transfer transfer){
+        boolean approved = false;
+        if(transfer.getTransferStatusId() == 2){
+            approved = true;
+        }
+        return approved;
+    }
+
+
+    @Override
+    public boolean UpdateFromBalances(Transfer transfer) {
+        int transferStatus = transfer.getTransferStatusId();
+        Account account = new Account();
+        boolean success = false;
+        int accountId= transfer.getAccountFrom();
+        long transferAmount = transfer.getTransferAmount();
+        long balance = 0;
+        long newBalance = 0;
+
+        String balanceSql = "SELECT balance FROM account WHERE account_id = ?;";
+        String balanceUpdate = "UPDATE account SET balance = ? WHERE account_id = ? ;";
+        SqlRowSet result = jdbcTemplate.queryForRowSet(balanceSql, accountId);
+        if(result.next()){
+            account = mapResultToAccount(result);
+        }
+        balance = account.getBalance();
+        newBalance = balance - transferAmount;
+        if(transferAmount-balance >= 0){
+            jdbcTemplate.update(balanceSql, newBalance, accountId);
+            success = true;
+        }
+
+        return success;
+    }
+
+    @Override
+    public boolean UpdateToBalances(Transfer transfer) {
+        int transferStatus = transfer.getTransferStatusId();
+        Account account = new Account();
+        boolean success = false;
+        int accountId= transfer.getAccountTo();
+        long transferAmount = transfer.getTransferAmount();
+        long balance = 0;
+        long newBalance = 0;
+
+        String balanceSql = "SELECT balance FROM account WHERE account_id = ?;";
+        String balanceUpdate = "UPDATE account SET balance = ? WHERE account_id = ? ;";
+        SqlRowSet result = jdbcTemplate.queryForRowSet(balanceSql, accountId);
+        if(result.next()){
+            account = mapResultToAccount(result);
+        }
+        balance = account.getBalance();
+        newBalance = balance + transferAmount;
+        jdbcTemplate.update(balanceSql, newBalance, accountId);
+        success = true;
+
+        return success;
+    }
+
     private Transfer mapResultToTransfer(SqlRowSet result){
         Transfer transfer= new Transfer();
         transfer.setTransferId(result.getInt("transfer_id"));
@@ -87,8 +172,16 @@ public class JdbcTransferDAO implements TransferDAO{
         transfer.setTransferStatusId(result.getInt("transfer_status_id"));
         transfer.setAccountFrom(result.getInt("account_from"));
         transfer.setAccountTo(result.getInt("account_to"));
-        transfer.setBalance(result.getLong("balance"));
+        transfer.setTransferAmount(result.getLong("amount"));
         return transfer;
+    }
+
+    private Account mapResultToAccount(SqlRowSet result){
+        Account account = new Account();
+        account.setAccountId(result.getInt("account_id"));
+        account.setUserId(result.getInt("user_id"));
+        account.setBalance(result.getLong("balance"));
+        return account;
     }
 
 }
