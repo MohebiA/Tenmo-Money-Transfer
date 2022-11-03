@@ -8,7 +8,12 @@ import java.security.Principal;
 public interface AccountDAO {
     Account getBalance(String username);
 
-    Account getAccount(int accountId);
+    Account getAccountByAccountId(int accountId);
+
+    Account getAccountByUserId(int userId);
 //    long getBalance(Principal principal);
+
+    int findUserIdByAccountNumber(int accountNumber);
+
 
 }

@@ -38,26 +38,6 @@ public class JdbcTransferDAO implements TransferDAO{
         return success;
     }
 
-/*    @Override
-    public List<Transfer> getTransfersByUserId(Principal principal) {
-        List<Transfer> transferList = new ArrayList<>();
-        String sql = "SELECT * FROM transfer JOIN account ON account.account_id = transfer.account_to JOIN tenmo_user " +
-                "ON account.user_id = tenmo_user.user_id WHERE username = ?;";
-
-        try {
-            SqlRowSet result = jdbcTemplate.queryForRowSet(sql, principal.getName());
-
-            while (result.next()) {
-                transferList.add(mapResultToTransfer(result));
-            }
-        }catch (ResourceAccessException e){
-            System.out.println(e.getMessage());
-        }
-        return transferList;
-    }*/
-
-
-
     @Override
     public List<Transfer> getTransfersByUserId(String username) {
         List<Transfer> transferList = new ArrayList<>();
@@ -120,50 +100,41 @@ public class JdbcTransferDAO implements TransferDAO{
 
     @Override
     public boolean UpdateFromBalances(Transfer transfer) {
-        int transferStatus = transfer.getTransferStatusId();
-        Account account = new Account();
         boolean success = false;
-        int accountId= transfer.getAccountFrom();
+        int accountNumber = transfer.getAccountFrom();
+
+        SqlRowSet rowSet = getSqlRowSetResults(accountNumber);
+        BigDecimal balance = getBalanceFromResults(rowSet);
         BigDecimal transferAmount = transfer.getTransferAmount();
-        BigDecimal balance = new BigDecimal(0);
-        BigDecimal newBalance = new BigDecimal(0);
 
-        String balanceSql = "SELECT balance FROM account WHERE account_id = ?;";
-        String balanceUpdate = "UPDATE account SET balance = ? WHERE account_id = ? ;";
-        SqlRowSet result = jdbcTemplate.queryForRowSet(balanceSql, accountId);
-        if(result.next()){
-            account = mapResultToAccount(result);
+        if((balance.subtract(transferAmount)).compareTo(BigDecimal.ZERO)>=0){
+            String updateAccountSql = "UPDATE account SET balance = ? WHERE account_id = ?;";
+            try {
+                jdbcTemplate.update(updateAccountSql, balance.subtract(transferAmount), accountNumber);
+                success = true;
+            }catch (ResourceAccessException ra){
+                System.out.println(ra.getMessage());
+            }
         }
-        balance = account.getBalance();
-        newBalance = balance.subtract(transferAmount);
-        if(newBalance.compareTo(BigDecimal.ZERO) >= 0){
-            jdbcTemplate.update(balanceUpdate, newBalance, accountId);
-            success = true;
-        }
-
         return success;
     }
 
     @Override
     public boolean UpdateToBalances(Transfer transfer) {
-        int transferStatus = transfer.getTransferStatusId();
-        Account account = new Account();
         boolean success = false;
-        int accountId= transfer.getAccountTo();
-        BigDecimal transferAmount = transfer.getTransferAmount();
-        BigDecimal balance = new BigDecimal(0);
-        BigDecimal newBalance = new BigDecimal(0);
+        int accountNumber = transfer.getAccountTo();
 
-        String balanceSql = "SELECT balance FROM account WHERE account_id = ?;";
-        String balanceUpdate = "UPDATE account SET balance = ? WHERE account_id = ? ;";
-        SqlRowSet result = jdbcTemplate.queryForRowSet(balanceSql, accountId);
-        if(result.next()){
-            account = mapResultToAccount(result);
+        SqlRowSet rowSet = getSqlRowSetResults(accountNumber);
+        BigDecimal balance = getBalanceFromResults(rowSet);
+        BigDecimal transferAmount = transfer.getTransferAmount();
+
+        String updateAccountSql = "UPDATE account SET balance = ? WHERE account_id = ?;";
+        try {
+            jdbcTemplate.update(updateAccountSql, balance.add(transferAmount), accountNumber);
+            success = true;
+        } catch (ResourceAccessException ra){
+            System.out.println(ra.getMessage());
         }
-        balance = account.getBalance();
-        newBalance = balance.add(transferAmount);
-        jdbcTemplate.update(balanceUpdate, newBalance, accountId);
-        success = true;
 
         return success;
     }
@@ -179,12 +150,32 @@ public class JdbcTransferDAO implements TransferDAO{
         return transfer;
     }
 
-    private Account mapResultToAccount(SqlRowSet result){
+
+    private SqlRowSet getSqlRowSetResults(int accountNumber) {
+        SqlRowSet rowSet = null;
+        String balanceRetrieve = "SELECT balance FROM account WHERE account_id = ?;";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(balanceRetrieve, accountNumber);
+        if (results.next()) {
+            rowSet = results;
+        }
+        return rowSet;
+    }
+
+
+    private BigDecimal getBalanceFromResults(SqlRowSet rowSet){
         Account account = new Account();
-        account.setAccountId(result.getInt("account_id"));
-        account.setUserId(result.getInt("user_id"));
-        account.setBalance(result.getBigDecimal("balance"));
-        return account;
+        return (rowSet.getBigDecimal("balance"));
+    }
+
+    public int getAccountNumber (Transfer transfer){
+        int accountNumber = transfer.getAccountFrom();
+        return accountNumber;
+    }
+
+    public int getUserId (int accountNumber){
+        int userId = 0;
+
+        return userId;
     }
 
 }
