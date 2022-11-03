@@ -41,8 +41,8 @@ public class JdbcTransferDAO implements TransferDAO{
     @Override
     public List<Transfer> getTransfersByUserId(String username) {
         List<Transfer> transferList = new ArrayList<>();
-        String sql = "SELECT * FROM transfer JOIN account ON account.account_id = transfer.account_to JOIN tenmo_user " +
-                "ON account.user_id = tenmo_user.user_id WHERE username = ?;";
+        String sql = "SELECT * FROM transfer JOIN account ON account.account_id = transfer.account_from JOIN tenmo_user " +
+                "ON account.user_id = tenmo_user.user_id WHERE username ILIKE ?;";
 
         try {
             SqlRowSet result = jdbcTemplate.queryForRowSet(sql, username);
@@ -165,17 +165,6 @@ public class JdbcTransferDAO implements TransferDAO{
     private BigDecimal getBalanceFromResults(SqlRowSet rowSet){
         Account account = new Account();
         return (rowSet.getBigDecimal("balance"));
-    }
-
-    public int getAccountNumber (Transfer transfer){
-        int accountNumber = transfer.getAccountFrom();
-        return accountNumber;
-    }
-
-    public int getUserId (int accountNumber){
-        int userId = 0;
-
-        return userId;
     }
 
 }
