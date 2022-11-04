@@ -15,5 +15,9 @@ public interface AccountDAO {
 
     int findUserIdByAccountNumber(int accountNumber);
 
+    Account getAccountByUsername(String username);
+
+    int getAccountIdByUserId(int userId);
+
 
 }

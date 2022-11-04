@@ -27,19 +27,13 @@ public class TransferView {
 
     private int toUserId;
 
+    private String transferTypeDesc;
+
+    private String transferStatusDesc;
+
     public TransferView(){}
 
-    public TransferView(int transferTypeId, int transferStatusId, int accountFrom, int accountTo, BigDecimal transferAmount, int userId, String username) {
-        this.transferTypeId = transferTypeId;
-        this.transferStatusId = transferStatusId;
-        this.accountFrom = accountFrom;
-        this.accountTo = accountTo;
-        this.transferAmount = transferAmount;
-        this.userId = userId;
-        this.username = username;
-    }
-
-    public TransferView(int transferId, int transferTypeId, int transferStatusId, int accountFrom, int accountTo, BigDecimal transferAmount, int userId, String username, int toUserId, String toUsername) {
+    public TransferView(int transferId, int transferTypeId, int transferStatusId, int accountFrom, int accountTo, BigDecimal transferAmount, int userId, String username, String toUsername, int toUserId) {
         this.transferId = transferId;
         this.transferTypeId = transferTypeId;
         this.transferStatusId = transferStatusId;
@@ -48,8 +42,20 @@ public class TransferView {
         this.transferAmount = transferAmount;
         this.userId = userId;
         this.username = username;
-        this.toUserId = toUserId;
         this.toUsername = toUsername;
+        this.toUserId = toUserId;
+    }
+
+    public TransferView(int transferTypeId, int transferStatusId, int accountFrom, int accountTo, BigDecimal transferAmount, int userId, String username, String toUsername, int toUserId) {
+        this.transferTypeId = transferTypeId;
+        this.transferStatusId = transferStatusId;
+        this.accountFrom = accountFrom;
+        this.accountTo = accountTo;
+        this.transferAmount = transferAmount;
+        this.userId = userId;
+        this.username = username;
+        this.toUsername = toUsername;
+        this.toUserId = toUserId;
     }
 
     public int getTransferId() {
@@ -128,8 +134,24 @@ public class TransferView {
         return toUserId;
     }
 
-    public void setToUserIdUserId(int toUserId) {
+    public void setToUserId(int toUserId) {
         this.toUserId = toUserId;
+    }
+
+    public String getTransferTypeDesc() {
+        return transferTypeDesc;
+    }
+
+    public void setTransferTypeDesc(String transferTypeDesc) {
+        this.transferTypeDesc = transferTypeDesc;
+    }
+
+    public String getTransferStatusDesc() {
+        return transferStatusDesc;
+    }
+
+    public void setTransferStatusDesc(String transferStatusDesc) {
+        this.transferStatusDesc = transferStatusDesc;
     }
 
     @Override

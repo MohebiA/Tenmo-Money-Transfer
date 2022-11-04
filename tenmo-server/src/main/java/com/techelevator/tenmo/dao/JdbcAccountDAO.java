@@ -68,6 +68,33 @@ public class JdbcAccountDAO implements AccountDAO{
     }
 
     @Override
+    public int getAccountIdByUserId(int userId){
+        int accountNumber;
+        try {
+            accountNumber = jdbcTemplate.queryForObject("SELECT account_id FROM account WHERE user_id = ?", int.class, userId);
+        } catch (NullPointerException | EmptyResultDataAccessException e) {
+            throw new UsernameNotFoundException("User id  " + userId + " was not found.");
+        }
+
+        return accountNumber;
+    }
+
+    @Override
+    public Account getAccountByUsername(String username) {
+        Account account = null;
+        String sql = "SELECT * FROM account a JOIN tenmo_user tu ON tu.user_id = a.user_id WHERE username = ?;";
+        try {
+            SqlRowSet result = jdbcTemplate.queryForRowSet(sql, username);
+            if (result.next()){
+                account = mapRowToAccount(result);
+            }
+        }catch (ResourceAccessException e){
+            System.out.println(e.getMessage());
+        }
+        return account;
+    }
+
+    @Override
     public int findUserIdByAccountNumber(int accountNumber) {
         int userId;
         try {

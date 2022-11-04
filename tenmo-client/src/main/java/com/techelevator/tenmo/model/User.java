@@ -23,6 +23,10 @@ public class User {
         this.username = username;
     }
 
+    public String userListToString(){
+        return  id + "  " + username;
+    }
+
     @Override
     public boolean equals(Object other) {
         if (other instanceof User) {

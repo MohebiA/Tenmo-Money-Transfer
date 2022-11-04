@@ -1,9 +1,11 @@
 package com.techelevator.tenmo.model;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.util.Objects;
 
 public class TransferView {
+
     private int transferId;
 
     private int transferTypeId;
@@ -27,6 +29,8 @@ public class TransferView {
     private String transferStatusDesc;
 
     private int toUserId;
+
+    private NumberFormat currency = NumberFormat.getCurrencyInstance();
 
     public TransferView(){}
 
@@ -139,16 +143,47 @@ public class TransferView {
         this.toUserId = toUserId;
     }
 
+    public String getTransferTypeDesc() {
+        return transferTypeDesc;
+    }
+
+    public void setTransferTypeDesc(String transferTypeDesc) {
+        this.transferTypeDesc = transferTypeDesc;
+    }
+
+    public String getTransferStatusDesc() {
+        return transferStatusDesc;
+    }
+
+    public void setTransferStatusDesc(String transferStatusDesc) {
+        this.transferStatusDesc = transferStatusDesc;
+    }
+    //TODO created for basic transfer
+    public TransferView(String username, String toUsername, int toUserId) {
+        this.username = username;
+        this.toUsername = toUsername;
+        this.toUserId = toUserId;
+    }
+
+    public void setToUserId(int toUserId) {
+        this.toUserId = toUserId;
+    }
+    //TODO tweaked to have some formatting
     public String transferToString(){
+        String toFrom = (transferTypeDesc.equals("Send")) ? "To:    " + toUsername : "From: " + toUsername;
+        return String.format("%-11s %-20s %10s", transferId, toFrom, currency.format(transferAmount) );
 
-        return  transferId + " From: " + username + " $" + transferAmount;
-
+//        return  transferId + " To: " + toUsername +" "+ currency.format(transferAmount);
     }
-
+    //TODO tweaked to have some formatting
     public String detailsToString(){
+        String toFrom = (transferTypeDesc.equals("Send")) ? "\nFrom:   " + username+ "\nTo:     " + toUsername : "\nFrom:   " + toUsername+ "\nTo:     " + username;
+        return "Id:     " + transferId +" "+ toFrom + "\nType:   " + transferTypeDesc + "\nStatus: " + transferStatusDesc + "\nAmount: " + currency.format(transferAmount) ;
 
-        return "Id: " + transferId +"\nFrom: " + username+ "\nTo: " + username + "\nType: " + transferTypeDesc + "\nStatus: " + transferStatusDesc + "\nAmount: " + transferAmount ;
+//        return "Id: " + transferId +"\nFrom: " + username+ "\nTo: " + toUsername + "\nType: " + transferTypeDesc + "\nStatus: " + transferStatusDesc + "\nAmount: " + currency.format(transferAmount) ;
     }
+
+
 
     @Override
     public String toString() {
@@ -158,7 +193,7 @@ public class TransferView {
                 ", transferStatusId=" + transferStatusId +
                 ", accountFrom=" + accountFrom +
                 ", ac countTo=" + accountTo +
-                ", transferAmount=" + transferAmount +
+                ", transferAmount=" + currency.format(transferAmount) +
                 ", userId=" + userId +
                 ", username='" + username +
                 ", toUserId=" + toUserId +

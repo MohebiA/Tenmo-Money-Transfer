@@ -185,14 +185,22 @@ public class TransferController {
         }
     }*/
 
-    @ResponseStatus(HttpStatus.CREATED)
+/*    @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(path = "", method = RequestMethod.POST)
     public boolean createTransfer(@Valid @RequestBody TransferView transferView, Principal principal) {
-        //int accountNumber = transferView.getAccountFrom();
-        //int userId = accountDAO.findUserIdByAccountNumber(accountNumber);
-        int userId = transferView.getUserId();
-        Account account = accountDAO.getAccountByUserId(userId);
-        User user = userDao.getUserById(userId);
+        String username = principal.getName();
+        Account account = accountDAO.getAccountByUsername(principal.getName());
+        TransferView addTransfer = new TransferView();
+
+        addTransfer.setTransferTypeId(2);
+        addTransfer.setTransferStatusId(2);
+        addTransfer.setAccountFrom(account.getAccountId());
+        addTransfer.setAccountTo(accountDAO.getAccountIdByUserId(transferView.getToUserId()));
+        addTransfer.setTransferAmount(transferView.getTransferAmount());
+
+
+
+        User user = userDao.getUserById(account.getUserId());
         boolean success = false;
 
         if(validAccount(account) && separateAccount(transferView, account.getAccountId())) {
@@ -201,11 +209,11 @@ public class TransferController {
 
                 //TODO combine these into one method and roll the SQL commands in a transaction?
                 try {
-                    success = transferDAO.createTransferView(transferView);
+                    success = transferDAO.createTransferView(addTransfer);
                     if (success) {
-                        success = transferDAO.UpdateFromBalancesView(transferView);
+                        success = transferDAO.UpdateFromBalancesView(addTransfer);
                         if (success) {
-                            success = transferDAO.UpdateToBalancesView(transferView);
+                            success = transferDAO.UpdateToBalancesView(addTransfer);
                             return success;
                         }
                     }
@@ -217,6 +225,52 @@ public class TransferController {
                         throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Insufficient Funds");
                     } else {
                         return success;
+                    }
+                }
+            } else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "You can not create transfers from another users' account.");
+            }
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Please enter a valid or another account");
+        }
+    }*/
+
+    public TransferView createTransfer(@Valid @RequestBody TransferView transferView, Principal principal) {
+        String username = principal.getName();
+        Account account = accountDAO.getAccountByUsername(principal.getName());
+        TransferView addTransfer = new TransferView();
+
+        addTransfer.setTransferTypeId(2);
+        addTransfer.setTransferStatusId(2);
+        addTransfer.setAccountFrom(account.getAccountId());
+        addTransfer.setAccountTo(accountDAO.getAccountIdByUserId(transferView.getToUserId()));
+        addTransfer.setTransferAmount(transferView.getTransferAmount());
+
+        User user = userDao.getUserById(account.getUserId());
+        boolean success = false;
+
+        if(validAccount(account) && separateAccount(transferView, account.getAccountId())) {
+            if (user.getUsername().equalsIgnoreCase(principal.getName())) {
+                //Original Code Below here
+
+                //TODO combine these into one method and roll the SQL commands in a transaction?
+                try {
+                    success = transferDAO.createTransferView(addTransfer);
+                    if (success) {
+                        success = transferDAO.UpdateFromBalancesView(addTransfer);
+                        if (success) {
+                            success = transferDAO.UpdateToBalancesView(addTransfer);
+                            return addTransfer;
+                        }
+                    }
+                } catch (RestClientResponseException rcr) {
+                    System.out.println(rcr.getRawStatusCode() + " : " + rcr.getStatusText());
+                } catch (Exception e) {
+                } finally {
+                    if (!success) {
+                        throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Insufficient Funds");
+                    } else {
+                        return addTransfer;
                     }
                 }
             } else {
@@ -304,7 +358,7 @@ public class TransferController {
 
     private boolean separateAccount(TransferView transferView, int fromAccount){
         boolean different = false;
-        Account account = accountDAO.getAccountByUserId(transferView.getUserId());;
+        Account account = accountDAO.getAccountByUserId(transferView.getToUserId());;
         int accountNumber = account.getAccountId();
         if (!(transferView.getAccountFrom() == fromAccount)){
             different = true;

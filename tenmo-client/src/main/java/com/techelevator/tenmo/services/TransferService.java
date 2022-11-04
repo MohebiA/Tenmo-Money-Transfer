@@ -4,15 +4,15 @@ import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.TransferView;
 import com.techelevator.util.BasicLogger;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
+
 public class TransferService {
+
 
     private static final String BASE_URL = "http://localhost:8080/myTransfers/";
     private RestTemplate restTemplate = new RestTemplate();
@@ -51,6 +51,32 @@ public class TransferService {
         return transferView;
     }
 
+    //TODO started create script
+    public TransferView sendTransfer(TransferView transferView){
+        boolean success = false;
+        HttpEntity<TransferView> entity = authEntityWithBody(transferView);
+        TransferView createdTransfer = null;
+        try{
+            createdTransfer = restTemplate.postForObject(BASE_URL, entity, TransferView.class);
+            success = true;
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            BasicLogger.log(e.getMessage());
+        }
+        return createdTransfer;
+    }
+
+    public TransferView createTransfer (String username, int toUserId, BigDecimal transferAmount){
+        TransferView transfer = new TransferView();
+            transfer.setUsername(username);
+            transfer.setToUserId(toUserId);
+            transfer.setTransferStatusId(2);
+            transfer.setTransferStatusDesc("Approved");
+            transfer.setTransferTypeId(2);
+            transfer.setTransferTypeDesc("Send");
+            transfer.setTransferAmount(transferAmount);
+        return transfer;
+    }
+
 
     public void printTransferListString() {
         TransferView[] list = null;
@@ -64,14 +90,19 @@ public class TransferService {
             for (TransferView transfer : list) {
                 System.out.println(transfer.transferToString());
             }
-
         }
     }
 
-
-    private HttpEntity<Transfer> authEntity() {
+    private HttpEntity<TransferView> authEntity() {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(authToken);
         return new HttpEntity<>(headers);
+    }
+
+    private HttpEntity<TransferView> authEntityWithBody(TransferView transferView) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(authToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return new HttpEntity<>(transferView, headers);
     }
 }

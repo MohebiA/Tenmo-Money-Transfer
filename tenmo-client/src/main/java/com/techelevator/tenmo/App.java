@@ -1,25 +1,23 @@
 package com.techelevator.tenmo;
 
-import com.techelevator.tenmo.model.AuthenticatedUser;
-import com.techelevator.tenmo.model.Transfer;
-import com.techelevator.tenmo.model.TransferView;
-import com.techelevator.tenmo.model.UserCredentials;
-import com.techelevator.tenmo.services.AccountService;
-import com.techelevator.tenmo.services.AuthenticationService;
-import com.techelevator.tenmo.services.ConsoleService;
-import com.techelevator.tenmo.services.TransferService;
+import com.techelevator.tenmo.model.*;
+import com.techelevator.tenmo.services.*;
+import io.cucumber.java.an.E;
+import org.springframework.http.HttpEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 
 public class App {
-
+    private NumberFormat currency = NumberFormat.getCurrencyInstance();
     private static final String API_BASE_URL = "http://localhost:8080/";
 
     private final ConsoleService consoleService = new ConsoleService();
     private final AuthenticationService authenticationService = new AuthenticationService(API_BASE_URL);
     private final AccountService accountService = new AccountService();
     private final TransferService transferService = new TransferService();
+    private final UserServices userServices = new UserServices();
 
     private AuthenticatedUser currentUser;
 
@@ -70,6 +68,8 @@ public class App {
             accountService.setAuthToken(currentUser.getToken());
             transferService.setAuthToken(currentUser.getToken());
             transferService.setCurrentUser(currentUser.getUser().getUsername());
+            userServices.setAuthToken(currentUser.getToken());
+            userServices.setCurrentUser(currentUser.getUser().getUsername());
         }
 
         if (currentUser == null) {
@@ -104,7 +104,7 @@ public class App {
 	private void viewCurrentBalance() {
 		// TODO Auto-generated method stub
         BigDecimal balance = accountService.getBalance();
-        System.out.println("This is your current balance : " + balance);
+        System.out.println("This is your current balance: " + currency.format(balance));
 	}
 
 	private void viewTransferHistory() {
@@ -118,6 +118,7 @@ public class App {
             for (TransferView listOfTransfers: transfers) {
                 System.out.println(listOfTransfers.transferToString());
             }
+            System.out.println("--------------------------------------------");
           int transferId = consoleService.promptForInt("\nPlease enter transfer ID to view details (0 to cancel): ");
             TransferView transfer = transferService.transferDetail(transferId);
             System.out.println("--------------------------------------------");
@@ -125,6 +126,7 @@ public class App {
             System.out.println("--------------------------------------------");
 
             System.out.println(transfer.detailsToString());
+            System.out.println("--------------------------------------------");
         }else {
                 consoleService.printErrorMessage();
             }
@@ -137,8 +139,40 @@ public class App {
 	}
 
 	private void sendBucks() {
-		// TODO Auto-generated method stub
-		
+		// TODO Auto-generated method stub and wrote the prompts for transfer
+
+        User[] userList = userServices.userlist();
+        TransferView newTransfer = null;
+        if(userList != null) {
+            if (userList != null) {
+                System.out.println("--------------------------------------------");
+                System.out.println("Users");
+                System.out.println("ID          Name");
+                System.out.println("--------------------------------------------");
+                for (User listOfUsers: userList) {
+                    System.out.println(listOfUsers.userListToString());
+                }
+                System.out.println("--------------------------------------------");
+                int userid = consoleService.promptForInt("\nEnter ID of user you are sending to (0 to cancel):");
+                BigDecimal transferAmount = consoleService.promptForBigDecimal("Enter amount:");
+                newTransfer = transferService.createTransfer(currentUser.getUser().getUsername(), userid, transferAmount);
+
+
+                try {
+                    TransferView sendTransfer= transferService.sendTransfer(newTransfer);
+                    if(sendTransfer == null){
+                        throw new NullPointerException("Your transfer failed to send");
+                    } else {
+                        System.out.println("Your transfer has been successfully sent!");
+                    }
+                } catch (Exception e){
+                    consoleService.printErrorMessage();
+                }
+
+
+
+            }
+        }
 	}
 
 	private void requestBucks() {

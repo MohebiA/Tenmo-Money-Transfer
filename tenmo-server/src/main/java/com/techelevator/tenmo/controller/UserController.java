@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @PreAuthorize("isAuthenticated()")
-@RequestMapping("/Users/")
+@RequestMapping("/Users")
 @RestController
 public class UserController {
 
@@ -50,11 +50,13 @@ public class UserController {
 
 
     @RequestMapping (path = "", method = RequestMethod.GET)
-    public List<User> findAll() {
+    public List<User> findAll(Principal principal) {
         List<User> users = new ArrayList<>();
 
                 try {
+                    String userName = principal.getName();
                     users = userDao.findAll();
+                    users.remove(userDao.findByUsername(userName));
                 } catch (RestClientResponseException rcr) {
                     System.out.println(rcr.getRawStatusCode() + " : " + rcr.getStatusText());
                 }

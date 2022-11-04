@@ -42,11 +42,14 @@ public class JdbcTransferDAO implements TransferDAO{
     @Override //with view
     public boolean createTransferView(TransferView transferView){
         boolean success = false;
+
         String sql = "INSERT INTO transfer (transfer_type_id, " +
                 "transfer_status_id, account_from, account_to, amount) VALUES (?,?,?,?,?);";
         try {
 /*            jdbcTemplate.queryForObject(sql, Transfer.class, transfer.getTransferTypeId(), transfer.getTransferStatusId(),
                     transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getTransferAmount());*/
+
+
             jdbcTemplate.update(sql, transferView.getTransferTypeId(), transferView.getTransferStatusId(),
                     transferView.getAccountFrom(), transferView.getAccountTo(), transferView.getTransferAmount());
             success = true;
@@ -270,6 +273,10 @@ public class JdbcTransferDAO implements TransferDAO{
         transferView.setTransferAmount(result.getBigDecimal("amount"));
         transferView.setUserId(result.getInt("user_id"));
         transferView.setUsername(result.getString("username"));
+        transferView.setToUserId(result.getInt("to_userid"));
+        transferView.setToUsername(result.getString("to_username"));
+        transferView.setTransferStatusDesc(result.getString("transfer_status_desc"));
+        transferView.setTransferTypeDesc(result.getString("transfer_type_desc"));
         return transferView;
     }
 
