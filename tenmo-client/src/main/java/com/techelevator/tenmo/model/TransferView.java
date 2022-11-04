@@ -1,22 +1,19 @@
 package com.techelevator.tenmo.model;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
 import java.util.Objects;
 
 public class TransferView {
     private int transferId;
-    @NotNull
+
     private int transferTypeId;
-    @NotNull
+
     private int transferStatusId;
-    @NotNull
+
     private int accountFrom;
-    @NotNull
+
     private int accountTo;
-    @Positive
+
     private BigDecimal transferAmount;
 
     private int userId;
@@ -25,11 +22,15 @@ public class TransferView {
 
     private String  toUsername;
 
+    private String transferTypeDesc;
+
+    private String transferStatusDesc;
+
     private int toUserId;
 
     public TransferView(){}
 
-    public TransferView(int transferTypeId, int transferStatusId, int accountFrom, int accountTo, BigDecimal transferAmount, int userId, String username) {
+    public TransferView(int transferTypeId, int transferStatusId, int accountFrom, int accountTo, BigDecimal transferAmount, int userId, String username, String toUsername, String transferTypeDesc, String transferStatusDesc, int toUserId) {
         this.transferTypeId = transferTypeId;
         this.transferStatusId = transferStatusId;
         this.accountFrom = accountFrom;
@@ -37,9 +38,13 @@ public class TransferView {
         this.transferAmount = transferAmount;
         this.userId = userId;
         this.username = username;
+        this.toUsername = toUsername;
+        this.transferTypeDesc = transferTypeDesc;
+        this.transferStatusDesc = transferStatusDesc;
+        this.toUserId = toUserId;
     }
 
-    public TransferView(int transferId, int transferTypeId, int transferStatusId, int accountFrom, int accountTo, BigDecimal transferAmount, int userId, String username, int toUserId, String toUsername) {
+    public TransferView(int transferId, int transferTypeId, int transferStatusId, int accountFrom, int accountTo, BigDecimal transferAmount, int userId, String username, String toUsername, String transferTypeDesc, String transferStatusDesc, int toUserId) {
         this.transferId = transferId;
         this.transferTypeId = transferTypeId;
         this.transferStatusId = transferStatusId;
@@ -48,8 +53,10 @@ public class TransferView {
         this.transferAmount = transferAmount;
         this.userId = userId;
         this.username = username;
-        this.toUserId = toUserId;
         this.toUsername = toUsername;
+        this.transferTypeDesc = transferTypeDesc;
+        this.transferStatusDesc = transferStatusDesc;
+        this.toUserId = toUserId;
     }
 
     public int getTransferId() {
@@ -132,6 +139,17 @@ public class TransferView {
         this.toUserId = toUserId;
     }
 
+    public String transferToString(){
+
+        return  transferId + " From: " + username + " $" + transferAmount;
+
+    }
+
+    public String detailsToString(){
+
+        return "Id: " + transferId +"\nFrom: " + username+ "\nTo: " + username + "\nType: " + transferTypeDesc + "\nStatus: " + transferStatusDesc + "\nAmount: " + transferAmount ;
+    }
+
     @Override
     public String toString() {
         return "TransferView{" +
@@ -145,6 +163,8 @@ public class TransferView {
                 ", username='" + username +
                 ", toUserId=" + toUserId +
                 ", toUsername=" + toUsername +
+                ", transferTypeDesc=" + transferTypeDesc +
+                ", transferStatusDesc=" + transferStatusDesc +
                 '\'' +
                 '}';
     }
@@ -154,11 +174,11 @@ public class TransferView {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TransferView that = (TransferView) o;
-        return transferId == that.transferId && transferTypeId == that.transferTypeId && transferStatusId == that.transferStatusId && accountFrom == that.accountFrom && accountTo == that.accountTo && userId == that.userId && transferAmount.equals(that.transferAmount) && username.equals(that.username);
+        return transferId == that.transferId && transferTypeId == that.transferTypeId && transferStatusId == that.transferStatusId && accountFrom == that.accountFrom && accountTo == that.accountTo && userId == that.userId && toUserId == that.toUserId && transferAmount.equals(that.transferAmount) && username.equals(that.username) && toUsername.equals(that.toUsername) && transferTypeDesc.equals(that.transferTypeDesc) && transferStatusDesc.equals(that.transferStatusDesc);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(transferId, transferTypeId, transferStatusId, accountFrom, accountTo, transferAmount, userId, username);
+        return Objects.hash(transferId, transferTypeId, transferStatusId, accountFrom, accountTo, transferAmount, userId, username, toUsername, transferTypeDesc, transferStatusDesc, toUserId);
     }
 }

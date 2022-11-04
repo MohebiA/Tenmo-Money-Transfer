@@ -1,9 +1,16 @@
 package com.techelevator.tenmo;
 
 import com.techelevator.tenmo.model.AuthenticatedUser;
+import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.TransferView;
 import com.techelevator.tenmo.model.UserCredentials;
+import com.techelevator.tenmo.services.AccountService;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.ConsoleService;
+import com.techelevator.tenmo.services.TransferService;
+import org.springframework.web.client.RestTemplate;
+
+import java.math.BigDecimal;
 
 public class App {
 
@@ -11,6 +18,8 @@ public class App {
 
     private final ConsoleService consoleService = new ConsoleService();
     private final AuthenticationService authenticationService = new AuthenticationService(API_BASE_URL);
+    private final AccountService accountService = new AccountService();
+    private final TransferService transferService = new TransferService();
 
     private AuthenticatedUser currentUser;
 
@@ -55,6 +64,14 @@ public class App {
     private void handleLogin() {
         UserCredentials credentials = consoleService.promptForCredentials();
         currentUser = authenticationService.login(credentials);
+        String token = accountService.setAuthToken(currentUser.getToken());
+        String cUser =accountService.setCurrentUser(currentUser.getUser().getUsername()) ;
+        if(currentUser != null){
+            accountService.setAuthToken(currentUser.getToken());
+            transferService.setAuthToken(currentUser.getToken());
+            transferService.setCurrentUser(currentUser.getUser().getUsername());
+        }
+
         if (currentUser == null) {
             consoleService.printErrorMessage();
         }
@@ -86,12 +103,32 @@ public class App {
 
 	private void viewCurrentBalance() {
 		// TODO Auto-generated method stub
-		
+        BigDecimal balance = accountService.getBalance();
+        System.out.println("This is your current balance : " + balance);
 	}
 
 	private void viewTransferHistory() {
 		// TODO Auto-generated method stub
-		
+        TransferView[] transfers = transferService.transfersList();
+        if (transfers != null) {
+            System.out.println("--------------------------------------------");
+            System.out.println("Transfers");
+            System.out.println("ID          From/To                 Amount");
+            System.out.println("--------------------------------------------");
+            for (TransferView listOfTransfers: transfers) {
+                System.out.println(listOfTransfers.transferToString());
+            }
+          int transferId = consoleService.promptForInt("\nPlease enter transfer ID to view details (0 to cancel): ");
+            TransferView transfer = transferService.transferDetail(transferId);
+            System.out.println("--------------------------------------------");
+            System.out.println("Transfer Details");
+            System.out.println("--------------------------------------------");
+
+            System.out.println(transfer.detailsToString());
+        }else {
+                consoleService.printErrorMessage();
+            }
+
 	}
 
 	private void viewPendingRequests() {
