@@ -11,7 +11,6 @@ public interface AccountDAO {
     Account getAccountByAccountId(int accountId);
 
     Account getAccountByUserId(int userId);
-//    long getBalance(Principal principal);
 
     int findUserIdByAccountNumber(int accountNumber);
 

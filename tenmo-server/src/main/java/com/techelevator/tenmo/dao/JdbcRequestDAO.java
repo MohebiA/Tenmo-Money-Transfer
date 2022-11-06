@@ -1,7 +1,6 @@
 package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Account;
-import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.TransferView;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -9,7 +8,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 
 import java.math.BigDecimal;
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +20,7 @@ public class JdbcRequestDAO implements RequestDAO{
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    //Get list of Request By Username
     @Override
     public List<TransferView> getListPendingRequestByUserId(String username) {
        List<TransferView> requestList = new ArrayList<>();
@@ -39,7 +38,7 @@ public class JdbcRequestDAO implements RequestDAO{
         return requestList;
     }
 
-
+    //Create a Transfer Request
     @Override
     public int createRequestTransfer(TransferView transferView) {
         Integer newId = 0;
@@ -57,11 +56,12 @@ public class JdbcRequestDAO implements RequestDAO{
         return newId;
     }
 
+    //Update Transfer - Approve or Reject
     @Override
     public boolean updateBalancesFromTransferRequest(TransferView transferView, Account fromAccount, Account toAccount, int transfer_id) {
         boolean success = false;
-        BigDecimal fromBalance = fromAccount.getBalance().add(transferView.getTransferAmount());
-        BigDecimal toBalance = toAccount.getBalance().subtract(transferView.getTransferAmount());
+        BigDecimal fromBalance = fromAccount.getBalance().subtract(transferView.getTransferAmount());
+        BigDecimal toBalance = toAccount.getBalance().add(transferView.getTransferAmount());
 
         String approvedSql = "BEGIN TRANSACTION;" +
                 "UPDATE account SET balance = ? WHERE account_id = ?;" +
@@ -74,11 +74,11 @@ public class JdbcRequestDAO implements RequestDAO{
                 "COMMIT;";
 
         try{
-            if(transferView.getTransferStatusId() == 2 && (toBalance.subtract(transferView.getTransferAmount()).compareTo(BigDecimal.ZERO))>=0){
+            if(transferView.getTransferStatusId() == 2 && (fromBalance.compareTo(BigDecimal.ZERO))>=0){
                 jdbcTemplate.update(approvedSql,fromBalance, fromAccount.getAccountId(), toBalance, toAccount.getAccountId(), 2, transfer_id );
                 success = true;
             }
-            if(transferView.getTransferStatusId() == 3 || (toBalance.subtract(transferView.getTransferAmount()).compareTo(BigDecimal.ZERO))<0) {
+            if(transferView.getTransferStatusId() == 3 || (fromBalance.compareTo(BigDecimal.ZERO))<0) {
                 jdbcTemplate.update(rejectSql, 3, transfer_id );
                 success = true;
             }
@@ -90,12 +90,7 @@ public class JdbcRequestDAO implements RequestDAO{
         return success;
     }
 
-
-    @Override
-    public boolean UpdateStatus(TransferView transferView, Account fromAccount, Account toAccount, int id) {
-        return false;
-    }
-
+    //Helper Methods
     private TransferView mapResultToTransferView(SqlRowSet result){
         TransferView transferView= new TransferView();
         transferView.setTransferId(result.getInt("transfer_id"));

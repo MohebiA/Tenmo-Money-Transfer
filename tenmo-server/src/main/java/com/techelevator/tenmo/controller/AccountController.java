@@ -28,8 +28,7 @@ public class AccountController {
         this.userDao = userDao;
     }
 
-
-
+    //Get List of All Users - Except you
     @RequestMapping (path = "{username}", method = RequestMethod.GET)
     public BigDecimal getAccountBalanceByUserName(@PathVariable String username, Principal principal){
         User user = userDao.findByUsername(username);
@@ -48,20 +47,5 @@ public class AccountController {
         }
     }
 
-    //TODO with principal added maybe delete
-/*    @RequestMapping (path = "/{id}", method = RequestMethod.GET)
-    public BigDecimal getAccount(@PathVariable int id, Principal principal){
-        Account account = accountDAO.getAccountByAccountId(id);;
-        if (account == null){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No Account Found");
-        } else {
-            if(userDao.getUserById(id).getUsername().equalsIgnoreCase(principal.getName())) {
-            account = accountDAO.getAccountByAccountId(id);
-            } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No Account Found");
-            }
-        }
-        return account.getBalance();
-    }*/
 
 }

@@ -34,6 +34,7 @@ public class App {
             mainMenu();
         }
     }
+
     private void loginMenu() {
         int menuSelection = -1;
         while (menuSelection != 0 && currentUser == null) {
@@ -121,21 +122,23 @@ public class App {
             }
             System.out.println("--------------------------------------------");
           int transferId = consoleService.promptForInt("\nPlease enter transfer ID to view details (0 to cancel): ");
-            TransferView transfer = null;
+            while (transferId != 0) {
+                TransferView transfer = null;
+                try {
 
-            try {
-                transfer = transferService.transferDetail(transferId);
-                System.out.println("--------------------------------------------");
-                System.out.println("Transfer Details");
-                System.out.println("--------------------------------------------");
+                    transfer = transferService.transferDetail(transferId);
+                    System.out.println("--------------------------------------------");
+                    System.out.println("Transfer Details");
+                    System.out.println("--------------------------------------------");
 
-                System.out.println(transfer.detailsToString());
-                System.out.println("--------------------------------------------");
-            } catch(NullPointerException e){
-                System.out.println("Please enter a valid transfer ID");
-                BasicLogger.log(e.getMessage());
+                    System.out.println(transfer.detailsToString());
+                    System.out.println("--------------------------------------------");
+                    transferId = 0;
+                } catch (NullPointerException e) {
+                    System.out.println("Please enter a valid transfer ID");
+                    BasicLogger.log(e.getMessage());
+                }
             }
-
         }else {
                 consoleService.printErrorMessage();
             }
@@ -151,35 +154,39 @@ public class App {
             System.out.println("Pending Transfers");
             System.out.println("ID          To                       Amount");
             System.out.println("--------------------------------------------");
-            for (TransferView listOfRequests: requests) {
+            for (TransferView listOfRequests : requests) {
                 System.out.println(listOfRequests.requestToString());
             }
             System.out.println("--------------------------------------------");
             int transferId = consoleService.promptForInt("\nPlease enter transfer ID to approve/reject (0 to cancel): ");
-            consoleService.promptForDecision();
-            System.out.println("--------------------------------------------");
-            int decision = consoleService.promptForInt("\nPlease choose an option (0 to cancel): ");
+            while (transferId != 0) {
+                consoleService.promptForDecision();
 
-            try{
-                if(decision == 1 || decision == 2){
-                  newRequest = transferService.updateTransfer(transferId, decision,currentUser.getUser().getUsername(),transferService.transferDetail(transferId).getToUserId(), transferService.transferDetail(transferId).getTransferAmount());
-                  transferService.sendUpdatedRequest(newRequest, transferId);
-                } else if(decision == 0){
-                    consoleService.pause();
+                System.out.println("--------------------------------------------");
+                int decision = consoleService.promptForInt("\nPlease choose an option (0 to cancel): ");
+
+                try {
+
+                    if (decision == 1 || decision == 2) {
+                        newRequest = transferService.updateTransfer(transferId, decision, currentUser.getUser().getUsername(), transferService.transferDetail(transferId).getToUserId(), transferService.transferDetail(transferId).getTransferAmount());
+                        boolean updated = transferService.sendUpdatedRequest(newRequest, transferId);
+                        System.out.println((updated) ? "The funds have been transferred!" : "Your transfer has been denied!");
+                        transferId = 0;
+                    } else if (decision == 0) {
+                        consoleService.printMainMenu();
+                        continue;
+
+                    } else {
+                        System.out.println("Please enter a valid selection");
+                    }
+                } catch (Exception e) {
+                    consoleService.printErrorMessage();
                 }
-                else{
-                    System.out.println("Please enter a valid selection");
-                }
-            }catch (Exception e){
-                consoleService.printErrorMessage();
             }
-
         }else {
             consoleService.printErrorMessage();
         }
-
     }
-
 
 	private void sendBucks() {
 		// TODO Auto-generated method stub and wrote the prompts for transfer
@@ -197,23 +204,23 @@ public class App {
                 }
                 System.out.println("--------------------------------------------");
                 int userid = consoleService.promptForInt("\nEnter ID of user you are sending to (0 to cancel):");
-                BigDecimal transferAmount = consoleService.promptForBigDecimal("Enter amount:");
-                newTransfer = transferService.createTransfer(currentUser.getUser().getUsername(), userid, transferAmount);
+                while (userid != 0) {
+                    BigDecimal transferAmount = consoleService.promptForBigDecimal("Enter amount:");
+                    newTransfer = transferService.createTransfer(currentUser.getUser().getUsername(), userid, transferAmount);
 
 
-                try {
-                    TransferView sendTransfer= transferService.sendTransfer(newTransfer);
-                    if(sendTransfer == null){
-                        throw new NullPointerException("Your transfer failed to send");
-                    } else {
-                        System.out.println("Your transfer has been successfully sent!");
+                    try {
+                        userid = 0;
+                        TransferView sendTransfer = transferService.sendTransfer(newTransfer);
+                        if (sendTransfer == null) {
+                            throw new NullPointerException("Your transfer failed to send");
+                        } else {
+                            System.out.println("Your transfer has been successfully sent!");
+                        }
+                    } catch (Exception e) {
+                        consoleService.printErrorMessage();
                     }
-                } catch (Exception e){
-                    consoleService.printErrorMessage();
                 }
-
-
-
             }
         }
 	}
@@ -234,21 +241,26 @@ public class App {
                 }
                 System.out.println("--------------------------------------------");
                 int userid = consoleService.promptForInt("\nEnter ID of user you are requesting from (0 to cancel):");
-                BigDecimal transferAmount = consoleService.promptForBigDecimal("Enter amount:");
-                newRequest = transferService.createRequest(currentUser.getUser().getUsername(), userid, transferAmount);
+                if( userid != 0) {
+                    BigDecimal transferAmount = consoleService.promptForBigDecimal("Enter amount:");
+                    while (userid != 0) {
 
+                        newRequest = transferService.createRequest(currentUser.getUser().getUsername(), userid, transferAmount);
 
-                try {
-                    TransferView sendRequest = transferService.sendRequest(newRequest);
-                    if(sendRequest == null){
-                        throw new NullPointerException("Your request failed to send");
-                    } else {
-                        System.out.println("Your request has been successfully sent!");
+                        try {
+                            userid = 0;
+                            TransferView sendRequest = transferService.sendRequest(newRequest);
+                            if (sendRequest == null) {
+
+                                throw new NullPointerException("Your request failed to send");
+                            } else {
+                                System.out.println("Your request has been successfully sent!");
+                            }
+                        } catch (Exception e) {
+                            consoleService.printErrorMessage();
+                        }
                     }
-                } catch (Exception e){
-                    consoleService.printErrorMessage();
                 }
-
             }
         }
 	}

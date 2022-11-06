@@ -53,7 +53,6 @@ public class TransferService {
         return transferView;
     }
 
-    //TODO started create script
     public TransferView sendTransfer(TransferView transferView){
         boolean success = false;
         HttpEntity<TransferView> entity = authEntityWithBody(transferView);
@@ -80,13 +79,19 @@ public class TransferService {
         return createdRequest;
     }
 
-    public boolean sendUpdatedRequest(TransferView transferView,int transferId){
+    public boolean sendUpdatedRequest(TransferView transferView, int id){
         boolean success = false;
+
+        int num = transferView.getTransferStatusId();
+        String text = transferView.getTransferStatusDesc();
+
+
         HttpEntity<TransferView> entity = authEntityWithBody(transferView);
         try{
-            transferView.setTransferId(transferId);
-            restTemplate.put(BASE_REQUEST_URL + "/filter?id=" + transferId, entity);
-            success = true;
+            restTemplate.put(BASE_REQUEST_URL+"/filter?id="+id, entity);
+            TransferView afterUpdate = transferDetail(id);
+            String status = afterUpdate.getTransferStatusDesc();
+            success = (status.equalsIgnoreCase("Approved")) ? true : false;
         } catch (RestClientResponseException | ResourceAccessException e) {
             BasicLogger.log(e.getMessage());
         }
@@ -138,22 +143,6 @@ public class TransferService {
         transfer.setTransferTypeDesc("Request");
         transfer.setTransferAmount(transferAmount);
         return transfer;
-    }
-
-
-    public void printTransferListString() {
-        TransferView[] list = null;
-        try {
-            ResponseEntity<TransferView[]> response = restTemplate.exchange(BASE_URL + "/" + currentUser, HttpMethod.GET, authEntity(), TransferView[].class);
-            list = response.getBody();
-        } catch (RestClientResponseException | ResourceAccessException e) {
-            BasicLogger.log(e.getMessage());
-        }
-        if (list != null) {
-            for (TransferView transfer : list) {
-                System.out.println(transfer.transferToString());
-            }
-        }
     }
 
     public TransferView[] createPendingRequestList(){

@@ -36,6 +36,7 @@ public class RequestController {
         this.accountDAO = accountDAO;
         this.requestDAO = requestDAO;
     }
+
     //List of Requests By User
     @RequestMapping(path = "/{username}", method = RequestMethod.GET)
     public List<TransferView> getListRequestsByUsername (@PathVariable String username, Principal principal) {
@@ -57,14 +58,20 @@ public class RequestController {
 
     //Get request from client and process it
     @RequestMapping(path = "/filter", method = RequestMethod.PUT)
-    public boolean processTransferRequests(@RequestBody TransferView transferView, @RequestParam int transferId, Principal principal){
+    public boolean processTransferRequests(@RequestBody TransferView transferView, @RequestParam int id, Principal principal){
         boolean success = false;
-        TransferView requestedTransfer = transferDAO.getTransferViewByTransferId(transferId);
+
+        TransferView requestedTransfer = transferDAO.getTransferViewByTransferId(id);
+        requestedTransfer = updatedToSendToDAO(requestedTransfer, transferView);
+
+        int num = requestedTransfer.getTransferStatusId();
+        String text = requestedTransfer.getTransferStatusDesc();
+
         Account fromAccount = accountDAO.getAccountByUserId(requestedTransfer.getUserId());
         Account toAccount = accountDAO.getAccountByUserId(requestedTransfer.getToUserId());
 
         try {
-            boolean processed = requestDAO.updateBalancesFromTransferRequest(requestedTransfer, fromAccount, toAccount, transferId);
+            boolean processed = requestDAO.updateBalancesFromTransferRequest(requestedTransfer, fromAccount, toAccount, id);
             success = processed;
         } catch (RestClientResponseException rcr){
             System.out.println(rcr.getRawStatusCode() + " : " + rcr.getStatusText());
@@ -105,6 +112,7 @@ public class RequestController {
         }
     }
 
+    //Helper Methods
     private TransferView setTransView (TransferView transferView, Account account) {
         TransferView updatedTransfer = new TransferView();
         updatedTransfer.setTransferTypeId(1);
@@ -132,14 +140,12 @@ public class RequestController {
         }
     }
 
-    private boolean separateAccount(TransferView transferView, int fromAccount){
-        boolean different = false;
-        Account account = accountDAO.getAccountByUserId(transferView.getToUserId());;
-        int accountNumber = account.getAccountId();
-        if (!(transferView.getAccountFrom() == fromAccount)){
-            different = true;
-        }
-        return different;
+    private TransferView updatedToSendToDAO(TransferView toFix, TransferView sentTransfer){
+        TransferView fixedTransfer = toFix;
+        fixedTransfer.setTransferStatusId(sentTransfer.getTransferStatusId());
+        fixedTransfer.setTransferStatusDesc(sentTransfer.getTransferStatusDesc());
+        return fixedTransfer;
     }
+
 
 }

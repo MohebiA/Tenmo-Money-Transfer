@@ -21,22 +21,6 @@ public class JdbcAccountDAO implements AccountDAO{
         this.jdbcTemplate = jdbcTemplate;
     }
 
-//    @Override
-//    public Account getBalance(String username) {
-//        Account account = null;
-//        BigDecimal balance = new BigDecimal(0);
-//        String sql = "SELECT balance FROM account JOIN tenmo_user ON account.user_id = tenmo_user.user_id WHERE username = ?;";
-//        try {
-//            SqlRowSet results = jdbcTemplate.queryForRowSet(sql, username);
-//            if (results.next()) {
-//                account = mapRowToAccount(results);
-//            }
-//        } catch (ResourceAccessException e){
-//            System.out.println(e.getMessage());
-//        }
-//        return account;
-//    }
-
     @Override
     public Account getAccountByAccountId(int accountId) {
         Account account = null;
@@ -105,22 +89,6 @@ public class JdbcAccountDAO implements AccountDAO{
 
         return userId;
     }
-
-/*    @Override
-    public long getBalance(Principal principal) {
-        String userId = principal.getName();
-        long balance = 0;
-        String sql = "SELECT balance FROM account JOIN tenmo_user ON account.user_id = tenmo_user.user_id WHERE username = ?;";
-        try {
-            SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId);
-            if (results.next()) {
-                balance = mapRowToAccount(results).getBalance();
-            }
-        } catch (ResourceAccessException e){
-            System.out.println(e.getMessage());
-        }
-        return balance;
-    }*/
 
     private Account mapRowToAccount(SqlRowSet result){
         Account account = new Account();
