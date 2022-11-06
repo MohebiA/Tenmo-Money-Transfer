@@ -171,6 +171,13 @@ public class TransferView {
 
 //        return  transferId + " To: " + toUsername +" "+ currency.format(transferAmount);
     }
+
+    public String requestToString(){
+        return String.format("%-11s %-20s %10s", transferId, toUsername, currency.format(transferAmount) );
+
+//        return  transferId + " To: " + toUsername +" "+ currency.format(transferAmount);
+    }
+
     //TODO tweaked to have some formatting
     public String detailsToString(){
         String toFrom = (transferTypeDesc.equals("Send")) ? "\nFrom:   " + username+ "\nTo:     " + toUsername : "\nFrom:   " + toUsername+ "\nTo:     " + username;

@@ -25,7 +25,7 @@ public class JdbcRequestDAO implements RequestDAO{
     @Override
     public List<TransferView> getListPendingRequestByUserId(String username) {
        List<TransferView> requestList = new ArrayList<>();
-       String sql = "SELECT * vw_transfer_account_users WHERE username = ? AND transfer_status_id = ?;";
+       String sql = "SELECT * FROM vw_transfer_account_users WHERE username = ? AND transfer_status_id = ?;";
 
         try {
             SqlRowSet result = jdbcTemplate.queryForRowSet(sql, username, 1);
@@ -49,7 +49,7 @@ public class JdbcRequestDAO implements RequestDAO{
 
         try{
             newId = jdbcTemplate.queryForObject(requestTransferSql, Integer.class, transferView.getTransferTypeId(), transferView.getTransferStatusId(),
-                    transferView.getAccountFrom(), transferView.getAccountTo(), transferView.getTransferAmount());
+                    transferView.getAccountTo(), transferView.getAccountFrom(), transferView.getTransferAmount());
 
         }catch(ResourceAccessException ra){
             System.out.println(ra.getMessage());

@@ -144,8 +144,42 @@ public class App {
 
 	private void viewPendingRequests() {
 		// TODO Auto-generated method stub
-		
-	}
+        TransferView[] requests = transferService.createPendingRequestList();
+        TransferView newRequest = null;
+        if (requests != null) {
+            System.out.println("--------------------------------------------");
+            System.out.println("Pending Transfers");
+            System.out.println("ID          To                       Amount");
+            System.out.println("--------------------------------------------");
+            for (TransferView listOfRequests: requests) {
+                System.out.println(listOfRequests.requestToString());
+            }
+            System.out.println("--------------------------------------------");
+            int transferId = consoleService.promptForInt("\nPlease enter transfer ID to approve/reject (0 to cancel): ");
+            consoleService.promptForDecision();
+            System.out.println("--------------------------------------------");
+            int decision = consoleService.promptForInt("\nPlease choose an option (0 to cancel): ");
+
+            try{
+                if(decision == 1 || decision == 2){
+                  newRequest = transferService.updateTransfer(transferId, decision,currentUser.getUser().getUsername(),transferService.transferDetail(transferId).getToUserId(), transferService.transferDetail(transferId).getTransferAmount());
+                  transferService.sendUpdatedRequest(newRequest, transferId);
+                } else if(decision == 0){
+                    consoleService.pause();
+                }
+                else{
+                    System.out.println("Please enter a valid selection");
+                }
+            }catch (Exception e){
+                consoleService.printErrorMessage();
+            }
+
+        }else {
+            consoleService.printErrorMessage();
+        }
+
+    }
+
 
 	private void sendBucks() {
 		// TODO Auto-generated method stub and wrote the prompts for transfer
@@ -186,7 +220,37 @@ public class App {
 
 	private void requestBucks() {
 		// TODO Auto-generated method stub
-		
+        TransferView[] pendingList = transferService.createPendingRequestList();
+        User[] userList = userServices.userlist();
+        TransferView newRequest = null;
+        if(userList != null) {
+            if (userList != null) {
+                System.out.println("--------------------------------------------");
+                System.out.println("Pending Transfers");
+                System.out.println("ID          Name");
+                System.out.println("--------------------------------------------");
+                for (User listOfUsers: userList) {
+                    System.out.println(listOfUsers.userListToString());
+                }
+                System.out.println("--------------------------------------------");
+                int userid = consoleService.promptForInt("\nEnter ID of user you are requesting from (0 to cancel):");
+                BigDecimal transferAmount = consoleService.promptForBigDecimal("Enter amount:");
+                newRequest = transferService.createRequest(currentUser.getUser().getUsername(), userid, transferAmount);
+
+
+                try {
+                    TransferView sendRequest = transferService.sendRequest(newRequest);
+                    if(sendRequest == null){
+                        throw new NullPointerException("Your request failed to send");
+                    } else {
+                        System.out.println("Your request has been successfully sent!");
+                    }
+                } catch (Exception e){
+                    consoleService.printErrorMessage();
+                }
+
+            }
+        }
 	}
 
 }

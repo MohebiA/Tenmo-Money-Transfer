@@ -15,6 +15,8 @@ public class TransferService {
 
 
     private static final String BASE_URL = "http://localhost:8080/myTransfers";
+    private static final String BASE_REQUEST_URL = "http://localhost:8080/myRequests";
+
     private RestTemplate restTemplate = new RestTemplate();
     private String authToken;
     private String currentUser;
@@ -65,6 +67,32 @@ public class TransferService {
         return createdTransfer;
     }
 
+    public TransferView sendRequest(TransferView transferView){
+        boolean success = false;
+        HttpEntity<TransferView> entity = authEntityWithBody(transferView);
+        TransferView createdRequest = null;
+        try{
+            createdRequest = restTemplate.postForObject(BASE_REQUEST_URL, entity, TransferView.class);
+            success = true;
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            BasicLogger.log(e.getMessage());
+        }
+        return createdRequest;
+    }
+
+    public boolean sendUpdatedRequest(TransferView transferView,int transferId){
+        boolean success = false;
+        HttpEntity<TransferView> entity = authEntityWithBody(transferView);
+        try{
+            transferView.setTransferId(transferId);
+            restTemplate.put(BASE_REQUEST_URL + "/filter?id=" + transferId, entity);
+            success = true;
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            BasicLogger.log(e.getMessage());
+        }
+        return success;
+    }
+
     public TransferView createTransfer (String username, int toUserId, BigDecimal transferAmount){
         TransferView transfer = new TransferView();
             transfer.setUsername(username);
@@ -74,6 +102,41 @@ public class TransferService {
             transfer.setTransferTypeId(2);
             transfer.setTransferTypeDesc("Send");
             transfer.setTransferAmount(transferAmount);
+        return transfer;
+    }
+
+    public TransferView updateTransfer (int transferId, int decision, String username,int toUserId, BigDecimal transferAmount){
+        String decisionDescription = "Pending";
+        int decisionInt = 1;
+        if(decision == 1){
+            decisionInt = 2;
+            decisionDescription = "Approved";
+        } else if(decision == 2){
+            decisionInt = 3;
+            decisionDescription = "Rejected";
+        }
+
+        TransferView transfer = new TransferView();
+        transfer.setUsername(username);
+        transfer.setTransferId(transfer.getTransferId());
+        transfer.setToUserId(toUserId);
+        transfer.setTransferStatusId(decisionInt);
+        transfer.setTransferStatusDesc(decisionDescription);
+        transfer.setTransferTypeId(1);
+        transfer.setTransferTypeDesc("Request");
+        transfer.setTransferAmount(transferAmount);
+        return transfer;
+    }
+
+    public TransferView createRequest (String username, int toUserId, BigDecimal transferAmount){
+        TransferView transfer = new TransferView();
+        transfer.setUsername(username);
+        transfer.setToUserId(toUserId);
+        transfer.setTransferStatusId(1);
+        transfer.setTransferStatusDesc("Pending");
+        transfer.setTransferTypeId(1);
+        transfer.setTransferTypeDesc("Request");
+        transfer.setTransferAmount(transferAmount);
         return transfer;
     }
 
@@ -91,6 +154,22 @@ public class TransferService {
                 System.out.println(transfer.transferToString());
             }
         }
+    }
+
+    public TransferView[] createPendingRequestList(){
+        TransferView[] list = null;
+        try {
+            ResponseEntity<TransferView[]> response = restTemplate.exchange(BASE_REQUEST_URL + "/" + currentUser, HttpMethod.GET, authEntity(), TransferView[].class);
+            list = response.getBody();
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            BasicLogger.log(e.getMessage());
+        }
+/*        if (list != null) {
+            for (TransferView transfer : list) {
+                System.out.println(transfer.requestToString());
+            }*/
+//        }
+        return list;
     }
 
     private HttpEntity<TransferView> authEntity() {
