@@ -349,13 +349,7 @@ public class TransferController {
         }
     }
 
-    /*private boolean separateAccount(TransferView transferView){
-        boolean different = false;
-        if (!(transferView.getAccountFrom() == transferView.getAccountTo())){
-            different = true;
-        }
-        return different;
-    }*/
+
 
     private boolean separateAccount(TransferView transferView, int fromAccount){
         boolean different = false;

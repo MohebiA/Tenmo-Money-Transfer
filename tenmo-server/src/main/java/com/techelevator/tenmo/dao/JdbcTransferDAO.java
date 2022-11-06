@@ -80,7 +80,7 @@ public class JdbcTransferDAO implements TransferDAO{
     @Override
     public List<TransferView> getTransfersViewByUserId(String username) {
         List<TransferView> transferList = new ArrayList<>();
-        String sql = "SELECT * FROM vw_transfer_account_users WHERE username ILIKE ?;";
+        String sql = "SELECT * FROM vw_transfer_account_users WHERE username = ?;";
 
         try {
             SqlRowSet result = jdbcTemplate.queryForRowSet(sql, username);
