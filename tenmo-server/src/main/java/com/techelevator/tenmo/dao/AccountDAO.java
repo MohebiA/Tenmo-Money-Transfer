@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.security.Principal;
 
 public interface AccountDAO {
-    Account getBalance(String username);
+//    Account getBalance(String username);
 
     Account getAccountByAccountId(int accountId);
 

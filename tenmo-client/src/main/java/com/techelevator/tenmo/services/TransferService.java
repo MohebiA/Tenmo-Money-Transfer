@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 public class TransferService {
 
 
-    private static final String BASE_URL = "http://localhost:8080/myTransfers/";
+    private static final String BASE_URL = "http://localhost:8080/myTransfers";
     private RestTemplate restTemplate = new RestTemplate();
     private String authToken;
     private String currentUser;
@@ -32,7 +32,7 @@ public class TransferService {
     public TransferView[] transfersList() {
         TransferView[] list = null;
         try {
-            ResponseEntity<TransferView[]> response = restTemplate.exchange(BASE_URL +  currentUser, HttpMethod.GET, authEntity(), TransferView[].class);
+            ResponseEntity<TransferView[]> response = restTemplate.exchange(BASE_URL + "/" +  currentUser, HttpMethod.GET, authEntity(), TransferView[].class);
             list = response.getBody();
         } catch (RestClientResponseException | ResourceAccessException e) {
             BasicLogger.log(e.getMessage());
@@ -81,7 +81,7 @@ public class TransferService {
     public void printTransferListString() {
         TransferView[] list = null;
         try {
-            ResponseEntity<TransferView[]> response = restTemplate.exchange(BASE_URL + currentUser, HttpMethod.GET, authEntity(), TransferView[].class);
+            ResponseEntity<TransferView[]> response = restTemplate.exchange(BASE_URL + "/" + currentUser, HttpMethod.GET, authEntity(), TransferView[].class);
             list = response.getBody();
         } catch (RestClientResponseException | ResourceAccessException e) {
             BasicLogger.log(e.getMessage());

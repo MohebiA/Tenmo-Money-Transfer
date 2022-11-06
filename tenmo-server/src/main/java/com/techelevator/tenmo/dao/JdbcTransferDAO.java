@@ -22,14 +22,14 @@ public class JdbcTransferDAO implements TransferDAO{
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    @Override //no fix needed
+/*    @Override //no fix needed
     public boolean createTransfer(Transfer transfer){
         boolean success = false;
         String sql = "INSERT INTO transfer (transfer_type_id, " +
                 "transfer_status_id, account_from, account_to, amount) VALUES (?,?,?,?,?);";
         try {
-/*            jdbcTemplate.queryForObject(sql, Transfer.class, transfer.getTransferTypeId(), transfer.getTransferStatusId(),
-                    transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getTransferAmount());*/
+*//*            jdbcTemplate.queryForObject(sql, Transfer.class, transfer.getTransferTypeId(), transfer.getTransferStatusId(),
+                    transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getTransferAmount());*//*
             jdbcTemplate.update(sql, transfer.getTransferTypeId(), transfer.getTransferStatusId(),
                     transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getTransferAmount());
             success = true;
@@ -37,7 +37,7 @@ public class JdbcTransferDAO implements TransferDAO{
             System.out.println(e.getMessage());;
         }
         return success;
-    }
+    }*/
 
     @Override //with view
     public boolean createTransferView(TransferView transferView){
@@ -59,7 +59,7 @@ public class JdbcTransferDAO implements TransferDAO{
         return success;
     }
 
-    @Override
+/*    @Override
     public List<Transfer> getTransfersByUserId(String username) {
         List<Transfer> transferList = new ArrayList<>();
         String sql = "SELECT * FROM transfer JOIN account ON account.account_id = transfer.account_from JOIN tenmo_user " +
@@ -75,7 +75,7 @@ public class JdbcTransferDAO implements TransferDAO{
             System.out.println(e.getMessage());
         }
         return transferList;
-    }
+    }*/
 
     @Override
     public List<TransferView> getTransfersViewByUserId(String username) {
@@ -94,7 +94,7 @@ public class JdbcTransferDAO implements TransferDAO{
         return transferList;
     }
 
-    @Override //not used
+/*    @Override //not used
     public List<Transfer> getAllTransfers() {
         List<Transfer> transferList = new ArrayList<>();
 
@@ -109,9 +109,9 @@ public class JdbcTransferDAO implements TransferDAO{
             System.out.println(e.getMessage());
         }
         return transferList;
-    }
+    }*/
 
-    @Override //not used
+/*    @Override //not used
     public List<TransferView> getAllTransfersView() {
         List<TransferView> transferList = new ArrayList<>();
 
@@ -142,7 +142,7 @@ public class JdbcTransferDAO implements TransferDAO{
             System.out.println(e.getMessage());
         }
         return transfer;
-    }
+    }*/
 
     @Override //fixed
     public TransferView getTransferViewByTransferId(int transferId) {
@@ -170,7 +170,7 @@ public class JdbcTransferDAO implements TransferDAO{
     }
 
 
-    @Override //no fix needed
+ /*   @Override //no fix needed
     public boolean UpdateFromBalances(Transfer transfer) {
         boolean success = false;
         int accountNumber = transfer.getAccountFrom();
@@ -189,9 +189,9 @@ public class JdbcTransferDAO implements TransferDAO{
             }
         }
         return success;
-    }
+    }*/
 
-    @Override //no fix needed
+ /*   @Override //no fix needed
     public boolean UpdateToBalances(Transfer transfer) {
         boolean success = false;
         int accountNumber = transfer.getAccountTo();
@@ -209,7 +209,7 @@ public class JdbcTransferDAO implements TransferDAO{
         }
 
         return success;
-    }
+    }*/
 
     @Override //with view
     public boolean UpdateFromBalancesView(TransferView transferView) {

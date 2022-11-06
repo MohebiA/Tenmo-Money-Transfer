@@ -2,6 +2,7 @@ package com.techelevator.tenmo;
 
 import com.techelevator.tenmo.model.*;
 import com.techelevator.tenmo.services.*;
+import com.techelevator.util.BasicLogger;
 import io.cucumber.java.an.E;
 import org.springframework.http.HttpEntity;
 import org.springframework.web.client.RestTemplate;
@@ -120,13 +121,21 @@ public class App {
             }
             System.out.println("--------------------------------------------");
           int transferId = consoleService.promptForInt("\nPlease enter transfer ID to view details (0 to cancel): ");
-            TransferView transfer = transferService.transferDetail(transferId);
-            System.out.println("--------------------------------------------");
-            System.out.println("Transfer Details");
-            System.out.println("--------------------------------------------");
+            TransferView transfer = null;
 
-            System.out.println(transfer.detailsToString());
-            System.out.println("--------------------------------------------");
+            try {
+                transfer = transferService.transferDetail(transferId);
+                System.out.println("--------------------------------------------");
+                System.out.println("Transfer Details");
+                System.out.println("--------------------------------------------");
+
+                System.out.println(transfer.detailsToString());
+                System.out.println("--------------------------------------------");
+            } catch(NullPointerException e){
+                System.out.println("Please enter a valid transfer ID");
+                BasicLogger.log(e.getMessage());
+            }
+
         }else {
                 consoleService.printErrorMessage();
             }

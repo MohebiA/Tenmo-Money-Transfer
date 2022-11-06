@@ -234,7 +234,8 @@ public class TransferController {
             throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Please enter a valid or another account");
         }
     }*/
-
+    @ResponseStatus(HttpStatus.CREATED)
+    @RequestMapping(path = "", method = RequestMethod.POST)
     public TransferView createTransfer(@Valid @RequestBody TransferView transferView, Principal principal) {
         String username = principal.getName();
         Account account = accountDAO.getAccountByUsername(principal.getName());

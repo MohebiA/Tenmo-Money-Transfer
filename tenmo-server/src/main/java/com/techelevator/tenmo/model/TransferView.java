@@ -58,6 +58,14 @@ public class TransferView {
         this.toUserId = toUserId;
     }
 
+    public TransferView(int transferTypeId, int transferStatusId, int accountFrom, int accountTo, BigDecimal transferAmount) {
+        this.transferTypeId = transferTypeId;
+        this.transferStatusId = transferStatusId;
+        this.accountFrom = accountFrom;
+        this.accountTo = accountTo;
+        this.transferAmount = transferAmount;
+    }
+
     public int getTransferId() {
         return transferId;
     }

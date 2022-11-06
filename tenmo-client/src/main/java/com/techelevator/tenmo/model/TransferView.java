@@ -34,21 +34,7 @@ public class TransferView {
 
     public TransferView(){}
 
-    public TransferView(int transferTypeId, int transferStatusId, int accountFrom, int accountTo, BigDecimal transferAmount, int userId, String username, String toUsername, String transferTypeDesc, String transferStatusDesc, int toUserId) {
-        this.transferTypeId = transferTypeId;
-        this.transferStatusId = transferStatusId;
-        this.accountFrom = accountFrom;
-        this.accountTo = accountTo;
-        this.transferAmount = transferAmount;
-        this.userId = userId;
-        this.username = username;
-        this.toUsername = toUsername;
-        this.transferTypeDesc = transferTypeDesc;
-        this.transferStatusDesc = transferStatusDesc;
-        this.toUserId = toUserId;
-    }
-
-    public TransferView(int transferId, int transferTypeId, int transferStatusId, int accountFrom, int accountTo, BigDecimal transferAmount, int userId, String username, String toUsername, String transferTypeDesc, String transferStatusDesc, int toUserId) {
+    public TransferView(int transferId, int transferTypeId, int transferStatusId, int accountFrom, int accountTo, BigDecimal transferAmount, int userId, String username, String toUsername, int toUserId) {
         this.transferId = transferId;
         this.transferTypeId = transferTypeId;
         this.transferStatusId = transferStatusId;
@@ -58,8 +44,18 @@ public class TransferView {
         this.userId = userId;
         this.username = username;
         this.toUsername = toUsername;
-        this.transferTypeDesc = transferTypeDesc;
-        this.transferStatusDesc = transferStatusDesc;
+        this.toUserId = toUserId;
+    }
+
+    public TransferView(int transferTypeId, int transferStatusId, int accountFrom, int accountTo, BigDecimal transferAmount, int userId, String username, String toUsername, int toUserId) {
+        this.transferTypeId = transferTypeId;
+        this.transferStatusId = transferStatusId;
+        this.accountFrom = accountFrom;
+        this.accountTo = accountTo;
+        this.transferAmount = transferAmount;
+        this.userId = userId;
+        this.username = username;
+        this.toUsername = toUsername;
         this.toUserId = toUserId;
     }
 
