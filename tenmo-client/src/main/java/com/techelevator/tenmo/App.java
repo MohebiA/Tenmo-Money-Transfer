@@ -136,6 +136,7 @@ public class App {
                     transferId = 0;
                 } catch (NullPointerException e) {
                     System.out.println("Please enter a valid transfer ID");
+                    transferId = 0;
                     BasicLogger.log(e.getMessage());
                 }
             }
@@ -173,11 +174,12 @@ public class App {
                         System.out.println((updated) ? "The funds have been transferred!" : "Your transfer has been denied!");
                         transferId = 0;
                     } else if (decision == 0) {
-                        consoleService.printMainMenu();
+                        transferId = 0;
                         continue;
 
                     } else {
                         System.out.println("Please enter a valid selection");
+                        transferId = 0;
                     }
                 } catch (Exception e) {
                     consoleService.printErrorMessage();

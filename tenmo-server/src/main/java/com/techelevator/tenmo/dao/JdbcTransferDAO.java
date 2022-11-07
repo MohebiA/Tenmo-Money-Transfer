@@ -20,16 +20,13 @@ public class JdbcTransferDAO implements TransferDAO {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    @Override //with view
+    @Override
     public boolean createTransferView(TransferView transferView) {
         boolean success = false;
 
         String sql = "INSERT INTO transfer (transfer_type_id, " +
                 "transfer_status_id, account_from, account_to, amount) VALUES (?,?,?,?,?);";
         try {
-/*            jdbcTemplate.queryForObject(sql, Transfer.class, transfer.getTransferTypeId(), transfer.getTransferStatusId(),
-                    transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getTransferAmount());*/
-
 
             jdbcTemplate.update(sql, transferView.getTransferTypeId(), transferView.getTransferStatusId(),
                     transferView.getAccountFrom(), transferView.getAccountTo(), transferView.getTransferAmount());
@@ -58,7 +55,7 @@ public class JdbcTransferDAO implements TransferDAO {
         return transferList;
     }
 
-    @Override //fixed
+    @Override
     public TransferView getTransferViewByTransferId(int transferId) {
         TransferView transfer = null;
         String sql = "SELECT * FROM vw_transfer_account_users WHERE transfer_id = ?;";
@@ -74,7 +71,7 @@ public class JdbcTransferDAO implements TransferDAO {
         return transfer;
     }
 
-    @Override //with view
+    @Override
     public boolean UpdateFromBalancesView(TransferView transferView) {
         boolean success = false;
         int accountNumber = transferView.getAccountFrom();
@@ -95,7 +92,7 @@ public class JdbcTransferDAO implements TransferDAO {
         return success;
     }
 
-    @Override //with view
+    @Override
     public boolean UpdateToBalancesView(TransferView transferView) {
         boolean success = false;
         int accountNumber = transferView.getAccountTo();

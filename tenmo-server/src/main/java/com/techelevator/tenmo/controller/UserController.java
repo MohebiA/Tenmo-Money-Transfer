@@ -48,7 +48,6 @@ public class UserController {
             return userId;
         }
 
-
     @RequestMapping (path = "", method = RequestMethod.GET)
     public List<User> findAll(Principal principal) {
         List<User> users = new ArrayList<>();

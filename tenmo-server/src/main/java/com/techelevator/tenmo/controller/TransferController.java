@@ -19,6 +19,7 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
@@ -87,27 +88,29 @@ public class TransferController {
 
         if(validAccount(account) && separateAccount(transferView, account.getAccountId())) {
             if (user.getUsername().equalsIgnoreCase(principal.getName())) {
-                //Original Code Below here
+                if(accountDAO.getAccountByUsername(username).getBalance().subtract(transferView.getTransferAmount()).compareTo(BigDecimal.ZERO)>=0) {
+                    try {
 
-                //TODO combine these into one method and roll the SQL commands in a transaction?
-                try {
-                    success = transferDAO.createTransferView(addTransfer);
-                    if (success) {
-                        success = transferDAO.UpdateFromBalancesView(addTransfer);
+                        success = transferDAO.createTransferView(addTransfer);
                         if (success) {
-                            success = transferDAO.UpdateToBalancesView(addTransfer);
+                            success = transferDAO.UpdateFromBalancesView(addTransfer);
+                            if (success) {
+                                success = transferDAO.UpdateToBalancesView(addTransfer);
+                                return addTransfer;
+                            }
+                        }
+                    } catch (RestClientResponseException rcr) {
+                        System.out.println(rcr.getRawStatusCode() + " : " + rcr.getStatusText());
+                    } catch (Exception e) {
+                    } finally {
+                        if (!success) {
+                            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Insufficient Funds");
+                        } else {
                             return addTransfer;
                         }
                     }
-                } catch (RestClientResponseException rcr) {
-                    System.out.println(rcr.getRawStatusCode() + " : " + rcr.getStatusText());
-                } catch (Exception e) {
-                } finally {
-                    if (!success) {
-                        throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Insufficient Funds");
-                    } else {
-                        return addTransfer;
-                    }
+                } else {
+                    throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Insufficient Funds");
                 }
             } else {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "You can not create transfers from another users' account.");
@@ -128,6 +131,7 @@ public class TransferController {
         } else {
             if (user.getUsername().equalsIgnoreCase(principal.getName())) {
                 transfers = transferDAO.getTransfersViewByUserId(username);
+//                transfers = transferDAO.getTransfersViewByUserId(username);
                 return transfers;
             } else {
                 throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You can not view other users' transfers.");
